@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  health: ^9.0.0              # 获取 Apple 健康数据
+  # health: ^9.0.0              # 获取 Apple 健康数据
   http: ^1.2.0                # 与 PHP 后台通信
   shared_preferences: ^2.2.2  # 本地存储用户信息
 
