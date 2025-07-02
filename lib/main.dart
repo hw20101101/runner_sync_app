@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -34,12 +36,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  //点击 + 按钮
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
 
-    registerUser('zhangsan4', '123456');
+    userLogin('zhangsan4', '123456');
   }
 
   @override
@@ -72,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> registerUser(String username, String password) async {
-    final url = Uri.parse('http://127.0.0.1:80/runner/db.php');
+    final url = Uri.parse('http://127.0.0.1:80/runner/register.php');
 
     final response = await http.post(
       url,
@@ -85,12 +88,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (response.statusCode == 200) {
       print('response.body: ${response.body}');
-      // final data = jsonDecode(response.body);
-      // if (data['status'] == 'success') {
-      //   print('注册成功：${data['message']}');
-      // } else {
-      //   print('注册失败：${data['message']}');
-      // }
+    } else {
+      print('服务器错误：HTTP ${response.statusCode}');
+    }
+  }
+
+  Future<void> userLogin(String username, String password) async {
+    final url = Uri.parse('http://127.0.0.1:80/runner/login.php');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('response.body: ${response.body}');
     } else {
       print('服务器错误：HTTP ${response.statusCode}');
     }
