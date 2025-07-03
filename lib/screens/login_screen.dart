@@ -3,13 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:runner_sync_app/providers/auth_provider.dart';
+import 'package:runner_sync_app/utils/validators.dart';
+import 'package:runner_sync_app/widgets/custom_text_field.dart';
+import 'package:runner_sync_app/widgets/terms_checkbox.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -23,32 +28,6 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return '请输入邮箱地址';
-    }
-
-    final emailRegex =
-        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (!emailRegex.hasMatch(value)) {
-      return '请输入有效的邮箱地址';
-    }
-
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return '请输入密码';
-    }
-
-    if (value.length < 6) {
-      return '密码长度不能少于6位';
-    }
-
-    return null;
   }
 
   Future<void> _handleLogin() async {
@@ -110,118 +89,49 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       // 邮箱输入框
-                      TextFormField(
+                      CustomTextField(
                         controller: _emailController,
+                        labelText: '邮箱地址',
+                        hintText: '请输入您的邮箱地址',
+                        prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
-                        validator: _validateEmail,
-                        decoration: InputDecoration(
-                          labelText: '邮箱地址',
-                          hintText: '请输入您的邮箱地址',
-                          prefixIcon: Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.blue[600]!),
-                          ),
-                        ),
+                        validator: Validators.validateEmail,
                       ),
 
                       SizedBox(height: 16),
-
                       // 密码输入框
-                      TextFormField(
+                      CustomTextField(
                         controller: _passwordController,
+                        labelText: '密码',
+                        hintText: '请输入您的密码',
+                        prefixIcon: Icons.lock_outline,
                         obscureText: !_isPasswordVisible,
-                        validator: _validatePassword,
-                        decoration: InputDecoration(
-                          labelText: '密码',
-                          hintText: '请输入您的密码',
-                          prefixIcon: Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
+                        validator: Validators.validatePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.blue[600]!),
-                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
                         ),
                       ),
 
                       SizedBox(height: 16),
 
                       // 用户协议勾选框
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _isAgreedToTerms,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isAgreedToTerms = value ?? false;
-                              });
-                            },
-                            activeColor: Colors.blue[600],
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isAgreedToTerms = !_isAgreedToTerms;
-                                });
-                              },
-                              child: Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '我已阅读并同意',
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                    TextSpan(
-                                      text: '《用户协议》',
-                                      style: TextStyle(
-                                        color: Colors.blue[600],
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '和',
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                    TextSpan(
-                                      text: '《隐私政策》',
-                                      style: TextStyle(
-                                        color: Colors.blue[600],
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Consumer<AuthProvider>(
+                      //   builder: (context, authProvider, child) {
+                      //     return TermsCheckbox(
+                      //       value: authProvider.isAgreedToTerms,
+                      //       onChanged: authProvider.setAgreedToTerms,
+                      //     );
+                      //   },
+                      // ),
 
                       SizedBox(height: 32),
 
