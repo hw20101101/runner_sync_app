@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:runner_sync_app/screens/home_screen.dart';
 import 'package:runner_sync_app/screens/register_screen.dart';
 import 'package:runner_sync_app/utils/validators.dart';
 import 'package:runner_sync_app/widgets/custom_text_field.dart';
@@ -193,7 +194,8 @@ class _LoginPageState extends State<LoginScreen> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RegisterScreen()));
+                                      builder: (context) =>
+                                          const RegisterScreen()));
                             },
                             child: Text(
                               '立即注册',
@@ -230,18 +232,26 @@ class _LoginPageState extends State<LoginScreen> {
       Map result = jsonDecode(response.body);
 
       if (result['success'] == true) {
-        // 登录成功，待完善 ToDo
+        // 登录成功
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('登录成功...')),
+          const SnackBar(content: Text('登录成功，即将跳转到主页...')),
         );
+        await Future.delayed(const Duration(seconds: 1));
+        // 添加导航到主页的逻辑
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
       } else {
+        // 登录失败
         var msg = result['message'];
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('登录失败：$msg')),
         );
       }
     } else {
-      print('服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+      // print('服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('登录失败, 请稍后再试...')),
+      );
     }
   }
 }
