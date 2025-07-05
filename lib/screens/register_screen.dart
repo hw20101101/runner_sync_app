@@ -186,7 +186,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // 返回登录页面
         Navigator.pop(context);
       } else {
-        var msg = result['msg'];
+        var msg = result['message'];
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('注册失败：$msg')),
         );

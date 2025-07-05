@@ -34,15 +34,15 @@ class _LoginPageState extends State<LoginScreen> {
       return;
     }
 
-    if (!_isAgreedToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请先同意用户协议'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+    // if (!_isAgreedToTerms) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text('请先同意用户协议'),
+    //       backgroundColor: Colors.red,
+    //     ),
+    //   );
+    //   return;
+    // }
 
     userLogin(_emailController.text, _passwordController.text);
   }
@@ -228,12 +228,17 @@ class _LoginPageState extends State<LoginScreen> {
 
     if (response.statusCode == 200) {
       Map result = jsonDecode(response.body);
+
       if (result['success'] == true) {
-        // 登录成功
-        print('登录成功...');
+        // 登录成功，待完善 ToDo
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('登录成功...')),
+        );
       } else {
-        // 登录失败
-        print('登录失败：${result['msg']}');
+        var msg = result['message'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('登录失败：$msg')),
+        );
       }
     } else {
       print('服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
