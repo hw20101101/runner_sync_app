@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _counter++;
     });
+
+    //添加运动数据
+    add_running();
   }
 
   @override
@@ -46,5 +52,38 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  //添加运动数据
+  Future<void> add_running() async {
+    final url = Uri.parse('http://127.0.0.1:80/runner/add_running.php');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': "test",
+        'password': "pwd",
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Map result = jsonDecode(response.body);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('恭喜，同步运动数据成功...')),
+        );
+      } else {
+        var msg = result['message'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('同步运动数据失败：$msg')),
+        );
+      }
+    } else {
+      print('同步数据-服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('同步运动数据, 请稍后再试...')),
+      );
+    }
   }
 }
