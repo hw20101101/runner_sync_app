@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:runner_sync_app/models/user.dart';
 import 'package:runner_sync_app/screens/home_screen.dart';
 import 'package:runner_sync_app/screens/register_screen.dart';
+import 'package:runner_sync_app/utils/database_service.dart';
 import 'package:runner_sync_app/utils/validators.dart';
 import 'package:runner_sync_app/widgets/custom_text_field.dart';
 
@@ -232,6 +234,17 @@ class _LoginPageState extends State<LoginScreen> {
       Map result = jsonDecode(response.body);
 
       if (result['success'] == true) {
+        //存储 user_id 和 token
+        final token = result['token'];
+        final userId = result['user_id'];
+
+        final user = User(
+          email: username,
+          token: token,
+          userId: userId,
+        );
+        DatabaseService.setUser(user);
+
         // 登录成功
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('登录成功，即将跳转到主页...')),
