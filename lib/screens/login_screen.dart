@@ -220,51 +220,60 @@ class _LoginPageState extends State<LoginScreen> {
   //登录请求
   Future<void> userLogin(String username, String password) async {
     final url = Uri.parse('http://127.0.0.1:80/runner/login.php');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-      }),
-    );
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      Map result = jsonDecode(response.body);
+        if (result['success'] == true) {
+          //存储 user_id 和 token
+          final token = result['token'];
+          final userId = result['user_id'];
 
-      if (result['success'] == true) {
-        //存储 user_id 和 token
-        final token = result['token'];
-        final userId = result['user_id'];
+          final user = User(
+            email: username,
+            token: token,
+            userId: userId,
+          );
+          DatabaseService.setUser(user);
 
-        final user = User(
-          email: username,
-          token: token,
-          userId: userId,
-        );
-        DatabaseService.setUser(user);
-
-        // 登录成功
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('登录成功，即将跳转到主页...')),
-        );
-        await Future.delayed(const Duration(seconds: 1));
-        // 添加导航到主页的逻辑
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
+          // 登录成功
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('登录成功，即将跳转到主页...')),
+          );
+          await Future.delayed(const Duration(seconds: 1));
+          // 添加导航到主页的逻辑
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()));
+        } else {
+          // 登录失败
+          var msg = result['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('登录失败：$msg')),
+          );
+        }
       } else {
-        // 登录失败
-        var msg = result['message'];
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('登录失败：$msg')),
+          const SnackBar(content: Text('登录失败, 网络错误')),
         );
       }
-    } else {
-      // print('服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+    } on Exception catch (e) {
+      print('登录失败-服务器错误：$e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('登录失败, 请稍后再试...')),
+        const SnackBar(content: Text('登录失败, 服务器错误2')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 }

@@ -166,36 +166,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> registerUser(String username, String password) async {
     final url = Uri.parse('http://127.0.0.1:80/runner/register.php');
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-      }),
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      Map result = jsonDecode(response.body);
-      if (result['success'] == true) {
-        // print('恭喜，用户注册成功...');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('恭喜，用户注册成功...')),
-        );
-        await Future.delayed(const Duration(seconds: 1));
-        // 返回登录页面
-        Navigator.pop(context);
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
+        if (result['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('恭喜，用户注册成功...')),
+          );
+          await Future.delayed(const Duration(seconds: 1));
+          // 返回登录页面
+          Navigator.pop(context);
+        } else {
+          var msg = result['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('注册失败：$msg')),
+          );
+        }
       } else {
-        var msg = result['message'];
+        print('注册失败-错误：HTTP ${response.body}， code: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('注册失败：$msg')),
+          const SnackBar(content: Text('注册失败-网络错误')),
         );
       }
-    } else {
-      print('注册-服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+    } on Exception catch (e) {
+      print('注册失败-服务器错误2：$e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('注册失败, 请稍后再试...')),
+        const SnackBar(content: Text('注册失败-服务器错误2')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 }

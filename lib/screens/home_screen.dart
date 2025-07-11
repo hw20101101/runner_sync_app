@@ -58,32 +58,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> add_running() async {
     final url = Uri.parse('http://127.0.0.1:80/runner/add_running.php');
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'username': "test",
-        'password': "pwd",
-      }),
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body:
+            jsonEncode({'username': "test", 'password': "pwd", 'user_id': '8'}),
+      );
 
-    if (response.statusCode == 200) {
-      Map result = jsonDecode(response.body);
-      if (result['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('恭喜，同步运动数据成功...')),
-        );
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
+        if (result['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('恭喜，添加运动数据成功...')),
+          );
+        } else {
+          var msg = result['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('添加运动数据失败：$msg')),
+          );
+        }
       } else {
-        var msg = result['message'];
+        print('添加数据失败-错误：HTTP ${response.body}， code: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('同步运动数据失败：$msg')),
+          const SnackBar(content: Text('添加运动数据失败')),
         );
       }
-    } else {
-      print('同步数据-服务器错误：HTTP ${response.body}， code: ${response.statusCode}');
+    } on Exception catch (e) {
+      print('添加数据失败-错误2：$e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('同步运动数据, 请稍后再试...')),
+        const SnackBar(content: Text('添加数据失败-错误2')),
       );
+    } finally {
+      setState(() {
+        // _isLoading = false;
+      });
     }
   }
 }
