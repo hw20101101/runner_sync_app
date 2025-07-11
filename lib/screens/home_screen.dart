@@ -58,12 +58,33 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> add_running() async {
     final url = Uri.parse('http://127.0.0.1:80/runner/add_running.php');
 
+    // 运动时长、距离、卡路里、平均速度、开始时间、结束时间、运动类型、用户id、用户名、密码
+    var duration = 100;
+    var distance = 1000;
+    var calories = 1000;
+    var avg_speed = 10;
+    var start_time = "2022-01-01 12:00:00";
+    var end_time = "2022-01-01 12:10:00";
+    var type = "running";
+
+    var json_data = {
+      "username": "test",
+      "password": "pwd",
+      "user_id": "8",
+      "duration": duration,
+      "distance": distance,
+      "calories": calories,
+      "avg_speed": avg_speed,
+      "start_time": start_time,
+      "end_time": end_time,
+      "type": type,
+    };
+
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body:
-            jsonEncode({'username': "test", 'password': "pwd", 'user_id': '8'}),
+        body: jsonEncode(json_data),
       );
 
       if (response.statusCode == 200) {
