@@ -243,7 +243,8 @@ class _LoginPageState extends State<LoginScreen> {
             token: token,
             userId: userId,
           );
-          DatabaseService.setUser(user);
+
+          DatabaseService().setUser(user);
 
           // 登录成功
           ScaffoldMessenger.of(context).showSnackBar(
