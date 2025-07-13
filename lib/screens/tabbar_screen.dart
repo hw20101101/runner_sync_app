@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runner_sync_app/screens/mine_screen.dart';
 
 // 底部 Tab 示例
 
@@ -14,7 +15,7 @@ class _TabbarScreenState extends State<TabbarScreen> {
   final List<Widget> _pages = [
     const Center(child: Text('🏠 首页内容')),
     const Center(child: Text('↩︎ 历史记录')),
-    const Center(child: Text('👤 我的内容')),
+    MineScreen() // 我的页面
   ];
 
   final List<BottomNavigationBarItem> _tabItems = const [
@@ -35,7 +36,7 @@ class _TabbarScreenState extends State<TabbarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tab 示例')),
+      // appBar: AppBar(title: const Text('Tab 示例')),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
