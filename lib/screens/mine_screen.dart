@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:runner_sync_app/models/user.dart';
 import 'package:runner_sync_app/screens/login_screen.dart';
+import 'package:runner_sync_app/utils/database_service.dart';
 
-class MineScreen extends StatelessWidget {
-  // final String avatarUrl = 'https://i.pravatar.cc/150?img=3';
-  final String name = '张三';
-  final String email = 'zhangsan@example.com';
-  final String phone = '123-4567-8901';
+class MineScreen extends StatefulWidget {
+  @override
+  _MineScreenState createState() => _MineScreenState();
+}
+
+// 对应的 State 类
+class _MineScreenState extends State<MineScreen> {
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser(); // 调用异步函数
+  }
+
+  Future<void> _loadUser() async {
+    final user = await DatabaseService().getUser();
+    setState(() {
+      _user = user;
+      // print('email: ${_user?.email}');
+      _user ??= User(email: '未登录', token: '', userId: 0);
+    });
+  }
 
   void _logout(BuildContext context) {
     // TODO: 在此处清除登录状态，例如清除 token、用户信息等
@@ -24,6 +44,7 @@ class MineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _user ??= User(email: '未登录', token: '', userId: 0);
     return Scaffold(
       appBar: AppBar(title: Text('我的')),
       body: Padding(
@@ -37,7 +58,7 @@ class MineScreen extends StatelessWidget {
             ),
 
             SizedBox(height: 16),
-            Text(name,
+            Text(_user!.email,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
             Divider(height: 32),
@@ -45,14 +66,7 @@ class MineScreen extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.email),
                 title: Text('邮箱'),
-                subtitle: Text(email),
-              ),
-            ),
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.phone),
-                title: Text('电话'),
-                subtitle: Text(phone),
+                subtitle: Text(_user!.email),
               ),
             ),
             Spacer(),
