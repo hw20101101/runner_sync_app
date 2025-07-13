@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runner_sync_app/models/user.dart';
-import 'package:runner_sync_app/screens/home_screen.dart';
+import 'package:runner_sync_app/screens/tabbar_screen.dart';
 import 'package:runner_sync_app/screens/login_screen.dart';
 import 'package:runner_sync_app/utils/database_service.dart';
 
@@ -48,8 +48,8 @@ class _CounterPageState extends State<CounterPage> {
             MaterialPageRoute(builder: (context) => const LoginScreen()));
       } else {
         // 已登录，显示首页
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => TabbarScreen()));
       }
     });
   }
