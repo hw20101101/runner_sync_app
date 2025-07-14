@@ -28,14 +28,42 @@ class _MineScreenState extends State<MineScreen> {
   }
 
   void _logout(BuildContext context) {
-    // TODO: 在此处清除登录状态，例如清除 token、用户信息等
+    // 弹出退出登录确认框
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('确认退出登录？'),
+          content: const Text('确认退出当前账号，返回登录页面。'),
+          actions: [
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('确认'),
+              onPressed: () {
+                _logoutAction(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-    // 模拟跳转到登录页（或欢迎页）
+  void _logoutAction(BuildContext context) {
+    //  在此处清除登录状态，例如清除 token、用户信息等
+    DatabaseService().setUser(null);
+
+    // 提示退出登录成功
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('已退出登录')),
     );
 
-    // 示例跳转逻辑，可根据你的项目结构修改
+    // 跳转登录页面
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),

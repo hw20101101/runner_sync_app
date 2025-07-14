@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:runner_sync_app/models/user.dart';
 import 'package:runner_sync_app/screens/home_screen.dart';
 import 'package:runner_sync_app/screens/register_screen.dart';
+import 'package:runner_sync_app/screens/tabbar_screen.dart';
 import 'package:runner_sync_app/utils/database_service.dart';
 import 'package:runner_sync_app/utils/validators.dart';
 import 'package:runner_sync_app/widgets/custom_text_field.dart';
@@ -252,8 +253,8 @@ class _LoginPageState extends State<LoginScreen> {
           );
           await Future.delayed(const Duration(seconds: 1));
           // 添加导航到主页的逻辑
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => TabbarScreen()));
         } else {
           // 登录失败
           var msg = result['message'];

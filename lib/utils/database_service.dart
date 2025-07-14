@@ -21,14 +21,23 @@ class DatabaseService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  setUser(User user) {
+  setUser(User? user) {
     _user = user;
     initSharedPreferences();
-    // 存储用户数据到本地
-    _prefs!.setBool('isLogin', true);
-    _prefs!.setString('email', user.email);
-    _prefs!.setString('token', user.token);
-    _prefs!.setInt('userId', user.userId);
+
+    if (user == null) {
+      // 清除本地存储的用户数据
+      _prefs!.setBool('isLogin', false);
+      _prefs!.setString('email', '');
+      _prefs!.setString('token', '');
+      _prefs!.setInt('userId', 0);
+    } else {
+      // 存储用户数据到本地
+      _prefs!.setBool('isLogin', true);
+      _prefs!.setString('email', user.email);
+      _prefs!.setString('token', user.token);
+      _prefs!.setInt('userId', user.userId);
+    }
   }
 
   Future<User?> getUser() async {
