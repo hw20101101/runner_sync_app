@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:runner_sync_app/models/user.dart';
-import 'package:runner_sync_app/screens/home_screen.dart';
 import 'package:runner_sync_app/screens/register_screen.dart';
 import 'package:runner_sync_app/screens/tabbar_screen.dart';
 import 'package:runner_sync_app/utils/database_service.dart';

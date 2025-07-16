@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:runner_sync_app/models/user.dart';
 import 'package:runner_sync_app/screens/login_screen.dart';
 import 'package:runner_sync_app/utils/database_service.dart';
+
+import 'package:http/http.dart' as http;
 
 class MineScreen extends StatefulWidget {
   @override
@@ -45,7 +49,7 @@ class _MineScreenState extends State<MineScreen> {
             TextButton(
               child: const Text('确认'),
               onPressed: () {
-                _logoutAction(context);
+                userLogout();
               },
             ),
           ],
@@ -54,20 +58,62 @@ class _MineScreenState extends State<MineScreen> {
     );
   }
 
-  void _logoutAction(BuildContext context) {
-    //  在此处清除登录状态，例如清除 token、用户信息等
-    DatabaseService().setUser(null);
+  //退出登录请求
+  Future<void> userLogout() async {
+    final user = await DatabaseService().getUser();
 
-    // 提示退出登录成功
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('已退出登录')),
-    );
+    final url = Uri.parse('http://127.0.0.1:80/runner/logout.php');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': user?.userId,
+          'token': user?.token,
+        }),
+      );
 
-    // 跳转登录页面
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
+
+        if (result['success'] == true) {
+          //清空 user_id 和 token
+          DatabaseService().setUser(null);
+
+          // 提示退出登录成功
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('已退出登录')),
+          );
+
+          // 跳转登录页面
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+          );
+        } else {
+          // 登录失败
+          var msg = result['message'];
+          print('退出登录失败-msg：$msg');
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text('登录失败：$msg')),
+          // );
+        }
+      } else {
+        print('退出登录失败-网络错误：${response.statusCode}');
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('登录失败, 网络错误')),
+        // );
+      }
+    } on Exception catch (e) {
+      print('退出登录失败-服务器错误：$e');
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('登录失败, 服务器错误2')),
+      // );
+    } finally {
+      setState(() {
+        // _isLoading = false;
+      });
+    }
   }
 
   @override
