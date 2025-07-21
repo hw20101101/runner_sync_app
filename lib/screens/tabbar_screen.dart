@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:runner_sync_app/screens/home_screen.dart';
 import 'package:runner_sync_app/screens/mine_screen.dart';
 
 // 底部 Tab 示例
@@ -13,7 +14,7 @@ class _TabbarScreenState extends State<TabbarScreen> {
 
   // tab 页面内容
   final List<Widget> _pages = [
-    const Center(child: Text('🏠 首页内容')),
+    const HomeScreen(), // 首页页面
     const Center(child: Text('↩︎ 历史记录')),
     MineScreen() // 我的页面
   ];

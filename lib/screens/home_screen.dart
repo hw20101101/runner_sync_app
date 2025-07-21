@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:runner_sync_app/utils/database_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     //添加运动数据
-    add_running();
+    // add_running();
+    query_running();
   }
 
   @override
@@ -67,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var end_time = "2022-01-01 12:10:00";
     var type = "running";
 
-    var json_data = {
+    var jsonData = {
       "username": "test",
       "password": "pwd",
       "user_id": "8",
@@ -84,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(json_data),
+        body: jsonEncode(jsonData),
       );
 
       if (response.statusCode == 200) {
@@ -109,6 +111,60 @@ class _HomeScreenState extends State<HomeScreen> {
       print('添加数据失败-错误2：$e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('添加数据失败-错误2')),
+      );
+    } finally {
+      setState(() {
+        // _isLoading = false;
+      });
+    }
+  }
+
+  //查询历史运动数据
+  Future<void> query_running() async {
+    final url = Uri.parse('http://127.0.0.1:80/runner/running_history.php');
+
+    // 获取用户id 和密码
+    final user = await DatabaseService().getUser();
+
+    var jsonData = {
+      "username": user?.email,
+      "password": user?.token,
+      "user_id": user?.userId,
+    };
+
+    print("-->> json_data: $jsonData");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
+        if (result['success'] == true) {
+          print(result['data']);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('恭喜，查询历史运动数据成功...')),
+          );
+        } else {
+          var msg = result['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('查询历史运动数据失败：$msg')),
+          );
+        }
+      } else {
+        print(
+            '查询历史运动数据失败-错误：HTTP ${response.body}， code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('查询历史运动运动数据失败')),
+        );
+      }
+    } on Exception catch (e) {
+      print('查询历史运动数据失败-错误2：$e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('查询历史运动数据失败-错误2')),
       );
     } finally {
       setState(() {
