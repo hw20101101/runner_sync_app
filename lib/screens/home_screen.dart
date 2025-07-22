@@ -38,14 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('主页...',
+        title: const Text('Running',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
-          // 统计卡片
-          // _buildStatisticsCard(),
-          // 列表
+          // 统计卡片概览
+          _buildStatisticsCard(),
+          // 运动数据列表
           Expanded(
             child: ListView.builder(
               itemCount: runningRecords.length,
@@ -66,6 +66,96 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // 统计卡片概览
+  Widget _buildStatisticsCard() {
+    if (runningRecords.isEmpty) return Container();
+
+    double totalDistance =
+        runningRecords.fold(0, (sum, data) => sum + data.distance);
+    Duration totalTime =
+        runningRecords.fold(Duration.zero, (sum, data) => sum + data.duration);
+    double avgDistance = totalDistance / runningRecords.length;
+    String avgPace = RunningData.calculatePace(totalTime, totalDistance);
+
+    return Container(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '统计概览',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue[800],
+            ),
+          ),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                    '总次数', '${runningRecords.length}次', Icons.directions_run),
+              ),
+              Expanded(
+                child: _buildStatItem('总距离',
+                    '${totalDistance.toStringAsFixed(1)}km', Icons.straighten),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem('平均距离',
+                    '${avgDistance.toStringAsFixed(1)}km', Icons.timeline),
+              ),
+              Expanded(
+                child: _buildStatItem('平均配速', '$avgPace/km', Icons.speed),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String title, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.blue[600]),
+        SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[800],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // 运动数据列表-item
   Widget _buildRunningCard(RunningData data, int index) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
