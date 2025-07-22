@@ -23,7 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     //添加运动数据
-    // add_running();
+    add_running();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    //查询历史运动数据
     query_running();
   }
 
@@ -233,6 +239,74 @@ class _HomeScreenState extends State<HomeScreen> {
       print('查询历史运动数据失败-错误2：$e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('查询历史运动数据失败-错误2')),
+      );
+    } finally {
+      setState(() {
+        // _isLoading = false;
+      });
+    }
+  }
+
+  //添加运动数据
+  Future<void> add_running() async {
+    final url = Uri.parse('http://127.0.0.1:80/runner/add_running.php');
+
+    // 运动时长、距离、卡路里、平均速度、开始时间、结束时间、运动类型、用户id、用户名、密码
+    var duration = 23;
+    var distance = 3;
+    var calories = 80;
+    var avg_speed = 6.5;
+    //获取当前时间
+    var now = DateTime.now();
+    var start_time = now.toString();
+    var end_time = now.add(Duration(minutes: duration)).toString();
+    var type = "running";
+
+    var jsonData = {
+      "username": "test",
+      "password": "pwd",
+      "user_id": "8",
+      "duration": duration,
+      "distance": distance,
+      "calories": calories,
+      "avg_speed": avg_speed,
+      "start_time": start_time,
+      "end_time": end_time,
+      "type": type,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        Map result = jsonDecode(response.body);
+        if (result['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('恭喜，添加运动数据成功...')),
+          );
+
+          // 刷新列表
+          query_running();
+        } else {
+          var msg = result['message'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('添加运动数据失败：$msg')),
+          );
+        }
+      } else {
+        print('添加数据失败-错误：HTTP ${response.body}， code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('添加运动数据失败')),
+        );
+      }
+    } on Exception catch (e) {
+      print('添加数据失败-错误2：$e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('添加数据失败-错误2')),
       );
     } finally {
       setState(() {
