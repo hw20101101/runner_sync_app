@@ -78,8 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String avgPace = RunningData.calculatePace(totalTime, totalDistance);
 
     return Container(
-      margin: EdgeInsets.all(16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue[50],
         borderRadius: BorderRadius.circular(12),
